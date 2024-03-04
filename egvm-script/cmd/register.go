@@ -2,7 +2,6 @@ package main
 
 import (
 	"github.com/dop251/goja"
-	"github.com/smartbch/egvm/egvm-script/context"
 
 	"github.com/smartbch/egvm/egvm-script/extension"
 	"github.com/smartbch/egvm/egvm-script/request"
@@ -109,6 +108,4 @@ func registerFunctions(vm *goja.Runtime) {
 	vm.Set("HttpsRequest", request.HttpsRequest)
 	vm.Set("AttestEnclaveServer", request.AttestEnclaveServer)
 
-	// ---------- context request ----------
-	vm.Set("GetEGVMContext", context.GetEGVMContext)
 }
