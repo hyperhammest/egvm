@@ -5,6 +5,7 @@ go 1.18
 require (
 	github.com/OneOfOne/xxhash v1.2.2
 	github.com/cespare/xxhash/v2 v2.2.0
+	github.com/decred/dcrd/dcrec/secp256k1/v4 v4.1.0
 	github.com/dop251/goja v0.0.0-20230122112309-96b1610dd4f7
 	github.com/dterei/gotsc v0.0.0-20160722215413-e78f872945c6
 	github.com/ecies/go/v2 v2.0.5
@@ -27,10 +28,10 @@ require (
 require (
 	github.com/FactomProject/basen v0.0.0-20150613233007-fe3947df716e // indirect
 	github.com/FactomProject/btcutilecc v0.0.0-20130527213604-d3a63a5752ec // indirect
+	github.com/btcsuite/btcd/btcec/v2 v2.2.0 // indirect
 	github.com/btcsuite/go-socks v0.0.0-20170105172521-4720035b7bfd // indirect
 	github.com/davecgh/go-spew v1.1.1 // indirect
 	github.com/dchest/siphash v1.2.3 // indirect
-	github.com/decred/dcrd/dcrec/secp256k1/v4 v4.1.0 // indirect
 	github.com/dlclark/regexp2 v1.7.0 // indirect
 	github.com/gcash/bchlog v0.0.0-20180913005452-b4f036f92fa6 // indirect
 	github.com/go-sourcemap/sourcemap v2.1.3+incompatible // indirect
