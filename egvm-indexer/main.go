@@ -1,21 +1,19 @@
 package main
 
 import (
-	"bytes"
 	"encoding/hex"
 	"errors"
 	"flag"
 	"fmt"
 	"log"
+	"math/big"
 	"net/http"
 	"strconv"
 	"strings"
 	"time"
 
 	"github.com/dgraph-io/badger/v4"
-	tmjson "github.com/tendermint/tendermint/libs/json"
-	"github.com/tendermint/tendermint/light"
-	tmtypes "github.com/tendermint/tendermint/types"
+	gethtypes "github.com/ethereum/go-ethereum/core/types"
 )
 
 var (
@@ -23,107 +21,9 @@ var (
 	tooManyJobsErr = errors.New("job nums touch upper limit")
 )
 
-var (
-	latestTrustedHeaderKey = []byte("egvm-header")
-)
-
 const (
 	maxJobNums = 1000
 )
-
-type Indexer struct {
-	chainId          string
-	smartBCHAddrList []string
-	listenUrl        string
-
-	latestTrustedHeader *tmtypes.SignedHeader
-	db                  *badger.DB
-
-	jobList map[string]*Job
-}
-
-func (i *Indexer) start() {
-	for {
-		height := i.latestTrustedHeader.Height
-		untrustedHeader := getSignedHeader(i.smartBCHAddrList, uint64(height+1))
-		if untrustedHeader.Height != height+1 {
-			i.smartBCHAddrList = rotateList(i.smartBCHAddrList)
-			time.Sleep(200 * time.Millisecond)
-			continue
-		}
-		validators := getValidators(i.smartBCHAddrList, uint64(height+1))
-		valSet, err := tmtypes.ValidatorSetFromExistingValidators(validators)
-		lb := &tmtypes.LightBlock{
-			SignedHeader: untrustedHeader,
-			ValidatorSet: valSet,
-		}
-		err = lb.ValidateBasic(i.chainId)
-		if err != nil {
-
-		}
-		err = light.VerifyAdjacent(i.latestTrustedHeader, untrustedHeader, valSet, 2*168*time.Hour, time.Now(), 10*time.Second)
-		if err != nil {
-			fmt.Printf("header at height [%d] verify failed\n", height+1)
-			i.smartBCHAddrList = rotateList(i.smartBCHAddrList)
-			continue
-		}
-		i.latestTrustedHeader = untrustedHeader
-		blk := getBlock(i.smartBCHAddrList, uint64(height+1))
-		if bH, tH := blk.Hash(), lb.Hash(); !bytes.Equal(bH, tH) {
-			fmt.Printf("block hash not equal signedHeader hash at height [%d]\n", height+1)
-			i.smartBCHAddrList = rotateList(i.smartBCHAddrList)
-			continue
-		}
-		//todo: store blk.Txs into db
-	}
-}
-
-func rotateList(smartbchAddrs []string) []string {
-	var newList = []string{smartbchAddrs[len(smartbchAddrs)-1]}
-	newList = append(newList, smartbchAddrs[:len(smartbchAddrs)-1]...)
-	return newList
-}
-
-func (i *Indexer) initLatestTrustedHeader() {
-	err := i.db.View(func(txn *badger.Txn) error {
-		iterm, err := txn.Get(latestTrustedHeaderKey)
-		if err != nil {
-			return err
-		}
-		return iterm.Value(func(val []byte) error {
-			var h tmtypes.SignedHeader
-			err := tmjson.Unmarshal(val, &h)
-			if err != nil {
-				return err
-			}
-			i.latestTrustedHeader = &h
-			return nil
-		})
-	})
-	if err == badger.ErrKeyNotFound {
-		var h tmtypes.SignedHeader
-		err = tmjson.Unmarshal([]byte(InitialHeaderStr), &h)
-		if err != nil {
-			panic(err)
-		}
-		i.latestTrustedHeader = &h
-	} else {
-		panic(err)
-	}
-}
-
-func (i *Indexer) AddJob(address string, height int64) error {
-	if _, exist := i.jobList[address]; exist {
-		return jobExistErr
-	}
-	if len(i.jobList) > maxJobNums {
-		return tooManyJobsErr
-	}
-	j := &Job{indexer: i}
-	i.jobList[address] = j
-	j.Start()
-	return nil
-}
 
 func main() {
 	indexer := &Indexer{}
@@ -143,7 +43,8 @@ func main() {
 	defer db.Close()
 	indexer.db = db
 	indexer.initLatestTrustedHeader()
-	indexer.chainId = ""
+	indexer.chainId = "0x2710"
+	indexer.signer = gethtypes.NewEIP155Signer(big.NewInt(10000))
 	go indexer.start()
 
 	addHttpHandler(indexer)
@@ -153,6 +54,7 @@ func main() {
 }
 
 func addHttpHandler(indexer *Indexer) {
+	// accept new contract scan job
 	http.HandleFunc("/contract", func(w http.ResponseWriter, r *http.Request) {
 		enableCors(&w)
 		addressList := r.URL.Query()["address"]
