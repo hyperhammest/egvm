@@ -1,0 +1,12 @@
+{
+  "exe": "egvmscript",
+  "key": "private.pem",
+  "debug": false,
+  "heapSize": 1024,
+  "executableHeap": false,
+  "productID": 1,
+  "securityVersion": 3,
+  "mounts": null,
+  "env": null,
+  "files": null
+}

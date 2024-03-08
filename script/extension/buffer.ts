@@ -1,0 +1,16 @@
+export declare const BufConcat: (...buf: ArrayBuffer[]) => ArrayBuffer;
+export declare const B64ToBuf: (s: string) => ArrayBuffer;
+export declare const HexToBuf: (s: string) => ArrayBuffer;
+export declare const UTF8StrToBuf: (s: string) => ArrayBuffer;
+export declare const HexToPaddingBuf: (s: string, LeftPadNumber: number) => ArrayBuffer;
+export declare const BufToB64: (buf: ArrayBuffer) => string;
+export declare const BufToHex: (buf: ArrayBuffer) => string;
+export declare const BufEqual: (a, b: ArrayBuffer) => boolean;
+export declare const BufCompare: (a, b: ArrayBuffer) => number;
+export declare const BufReverse: (buf: ArrayBuffer) => ArrayBuffer;
+export declare const BufToU32BE:(buf: ArrayBuffer) => number;
+export declare const BufToU32LE:(buf: ArrayBuffer) => number;
+export declare const U64ToBufBE:(uint64: number) => ArrayBuffer;
+export declare const U64ToBufLE:(uint64: number) => ArrayBuffer;
+export declare const U32ToBufBE:(uint32: number) => ArrayBuffer;
+export declare const U32ToBufLE:(uint32: number) => ArrayBuffer;
