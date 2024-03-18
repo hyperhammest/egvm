@@ -9,7 +9,7 @@ require (
 	github.com/dop251/goja v0.0.0-20230122112309-96b1610dd4f7
 	github.com/dterei/gotsc v0.0.0-20160722215413-e78f872945c6
 	github.com/ecies/go/v2 v2.0.5
-	github.com/edgelesssys/ego v1.4.4
+	github.com/edgelesssys/ego v1.5.0
 	github.com/ethereum/go-ethereum v1.11.0
 	github.com/gcash/bchd v0.19.0
 	github.com/gcash/bchutil v0.0.0-20210113190856-6ea28dff4000
